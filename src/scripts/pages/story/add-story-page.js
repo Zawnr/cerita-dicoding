@@ -43,6 +43,7 @@ export default class AddStoryPage {
           <!-- Deskripsi Section -->
           <div class="form-section">
             <h3><i class="fas fa-align-left"></i> Deskripsi</h3>
+            <label for="description" class="sr-only">Deskripsi</label>
             <textarea 
               id="description" 
               class="form-control"
