@@ -1,5 +1,6 @@
 import Camera from '../../utils/camera';
 import Map from '../../utils/maps';
+import AddStoryPresenter from './add-story-presenter';
 
 export default class AddStoryPage {
   constructor() {
@@ -18,6 +19,14 @@ export default class AddStoryPage {
           <!-- Foto Section -->
           <div class="form-section">
             <h3><i class="fas fa-camera"></i> Foto</h3>
+
+            <div id="cameraContainer" class="camera-container" style="display:none">
+              <video id="cameraView" autoplay playsinline></video>
+              <button type="button" id="captureBtn" class="btn btn-primary">
+                <i class="fas fa-camera-retro"></i> Ambil Foto
+              </button>
+            </div>
+            
             <div class="photo-options">
               <button type="button" id="openCameraBtn" class="btn btn-outline">
                 <i class="fas fa-camera"></i> Buka Kamera
@@ -26,13 +35,6 @@ export default class AddStoryPage {
                 <i class="fas fa-upload"></i> Ambil dari File
               </button>
               <input type="file" id="photoInput" accept="image/*" style="display:none">
-            </div>
-
-            <div id="cameraContainer" class="camera-container" style="display:none">
-              <video id="cameraView" autoplay playsinline></video>
-              <button type="button" id="captureBtn" class="btn btn-primary">
-                <i class="fas fa-camera-retro"></i> Ambil Foto
-              </button>
             </div>
 
             <div class="photo-preview">
@@ -82,9 +84,20 @@ export default class AddStoryPage {
   }
 
   async afterRender() {
+    try {
+    const { default: AddStoryPresenter } = await import('./add-story-presenter');
+    this._presenter = new AddStoryPresenter(this);
+
     this._initCamera();
     await this._initMap();
     this._setupEventListeners();
+
+        console.log('[SUCCESS] AddStoryPage initialized with presenter');
+    
+    } catch (error) {
+      console.error('[ERROR] Failed to initialize AddStoryPage:', error);
+      this.showError('Gagal menginisialisasi halaman');
+    }
   }
 
   setPresenter(presenter) {
@@ -99,6 +112,9 @@ export default class AddStoryPage {
     const description = document.getElementById('description').value;
     const lat = document.getElementById('latitude').value;
     const lon = document.getElementById('longitude').value;
+
+    console.log('[DEBUG] Form values:', { description, lat, lon });
+    console.log('[DEBUG] Selected photo:', this._selectedPhoto);
 
     if (!description) {
       this.showError('Deskripsi tidak boleh kosong');
@@ -119,9 +135,28 @@ export default class AddStoryPage {
   }
 
   showSuccess(message) {
-    const notif = document.getElementById('notification');
-    notif.innerHTML = `<div class="alert alert-success">${message}</div>`;
-    setTimeout(() => notif.innerHTML = '', 3000);
+    console.log('[DEBUG] showSuccess called:', message);
+    try {
+      const notif = document.getElementById('notification');
+      if (notif) {
+        notif.innerHTML = `<div class="alert alert-success">${message}</div>`;
+        setTimeout(() => {
+          try {
+            notif.innerHTML = '';
+          } catch (timeoutError) {
+            console.warn('[WARNING] Timeout cleanup failed:', timeoutError);
+          }
+        }, 3000);
+      } else {
+        // Fallback: gunakan alert jika notification element tidak ada
+        console.warn('[WARNING] Notification element not found, using alert');
+        alert(message);
+      }
+    } catch (error) {
+      console.error('[ERROR] showSuccess failed:', error);
+      // Fallback ke alert
+      alert(message);
+    }
   }
 
   showLoading() {
@@ -141,23 +176,60 @@ export default class AddStoryPage {
   }
 
   resetForm() {
-    document.getElementById('storyForm').reset();
-    document.getElementById('photoPreview').style.display = 'none';
-    
-    if (this._camera) {
-      this._camera.stop();
-    }
-    
-    this._isCameraOpen = false;
-    document.getElementById('openCameraBtn').innerHTML = '<i class="fas fa-camera"></i> Buka Kamera';
-    document.getElementById('cameraContainer').style.display = 'none';
+    console.log('[DEBUG] resetForm called');
+    try {
+      // Reset form
+      const form = document.getElementById('storyForm');
+      if (form) {
+        form.reset();
+      }
 
-    if (this._map && this._marker) {
-      const center = this._map.getCenter();
-      this._marker.setLatLng([center.latitude, center.longitude]);
-      this._updateCoordinateInputs(center.latitude, center.longitude);
-    }
+      // Reset photo preview
+      const photoPreview = document.getElementById('photoPreview');
+      if (photoPreview) {
+        photoPreview.style.display = 'none';
+        photoPreview.src = '';
+      }
 
+      // Reset selected photo
+      this._selectedPhoto = null;
+
+      // Safely stop camera
+      if (this._camera) {
+        try {
+          this._camera.stop();
+        } catch (cameraError) {
+          console.warn('[WARNING] Camera stop failed:', cameraError);
+        }
+      }
+
+      // Reset camera UI
+      this._isCameraOpen = false;
+      const openCameraBtn = document.getElementById('openCameraBtn');
+      const cameraContainer = document.getElementById('cameraContainer');
+
+      if (openCameraBtn) {
+        openCameraBtn.innerHTML = '<i class="fas fa-camera"></i> Buka Kamera';
+      }
+      if (cameraContainer) {
+        cameraContainer.style.display = 'none';
+      }
+
+      // Safely reset map
+      if (this._map && this._marker) {
+        try {
+          const center = this._map.getCenter();
+          this._marker.setLatLng([center.latitude, center.longitude]);
+          this._updateCoordinateInputs(center.latitude, center.longitude);
+        } catch (mapError) {
+          console.warn('[WARNING] Map reset failed:', mapError);
+        }
+      }
+
+      console.log('[SUCCESS] Form reset completed');
+    } catch (error) {
+      console.error('[ERROR] resetForm failed:', error);
+    }
   }
 
   // Private methods
@@ -221,16 +293,24 @@ export default class AddStoryPage {
 
     // Form submission handled by presenter
     const form = document.getElementById('storyForm');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (this._presenter) {
-          try {
-            await this._presenter.handleSubmit();
-          } catch (error) {
-            console.error('Form submission error:', error);
-            this.showError('Terjadi kesalahan saat mengirim form');
-          }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (this._presenter && typeof this._presenter.handleSubmit === 'function') {
+        try {
+          await this._presenter.handleSubmit();
+        } catch (error) {
+          // PERBAIKAN: Log error detail untuk debugging
+          console.error('[ERROR] Form submission failed in view:', error);
+          console.error('[ERROR] Error stack:', error.stack);
+
+          // Show user-friendly message
+          this.showError(`Gagal mengirim form: ${error.message || 'Unknown error'}`);
         }
+      } else {
+        console.error('[ERROR] Presenter or handleSubmit not available');
+        this.showError('Form handler tidak tersedia');
+      }
     });
   }
 
@@ -262,7 +342,6 @@ export default class AddStoryPage {
       
       this._isCameraOpen = !this._isCameraOpen;
     } catch (error) {
-      console.error('Error:', error);
       this.showError('Gagal mengakses kamera: ' + error.message);
       
       cameraBtn.disabled = false;

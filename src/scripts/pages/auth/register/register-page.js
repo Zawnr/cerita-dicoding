@@ -8,7 +8,6 @@ export default class RegisterPage {
       <section class="register-container">
         <div class="register-form-container">
           <h1 class="register__title">Daftar akun</h1>
-          <div id="registerError" class="error-message"></div>
           <form id="register-form" class="register-form">
             <div class="form-control">
               <label for="name-input">Nama lengkap</label>
@@ -34,16 +33,27 @@ export default class RegisterPage {
     `;
   }
 
-  bindRegister(handler) {
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const data = {
-        name: document.getElementById('name-input').value,
-        email: document.getElementById('email-input').value,
-        password: document.getElementById('password-input').value
-      };
-      await handler(data);
-    });
+  async afterRender() {
+    try {
+      const { default: RegisterPresenter } = await import('./register-presenter');
+      this._presenter = new RegisterPresenter({ view: this });
+
+      const form = document.getElementById('register-form');
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          if (this._presenter) {
+            const name = document.getElementById('name-input').value;
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+            await this._presenter._handleRegister({ name, email, password });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('afterRender error (register):', error);
+    }
   }
 
   showError(message) {
@@ -56,6 +66,12 @@ export default class RegisterPage {
     const button = document.getElementById('register-button');
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
     button.disabled = true;
+  }
+
+  hideLoading() {
+    const button = document.getElementById('register-button');
+    button.textContent = 'Daftar';
+    button.disabled = false;
   }
 
   resetForm() {

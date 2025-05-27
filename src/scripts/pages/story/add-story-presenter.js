@@ -3,7 +3,6 @@ import { addNewStory } from '../../data/api';
 export default class AddStoryPresenter {
   constructor(view) {
     this._view = view;
-    this._view.setPresenter(this);
   }
 
   async init() {
@@ -21,7 +20,7 @@ export default class AddStoryPresenter {
     
     try {
       // 1. Get form data from view
-      const formData = await this._view.getFormData();
+      const formData = this._view.getFormData();
       console.log('[DEBUG] Form data:', {
         description: formData.description,
         hasPhoto: !!formData.photo,
@@ -61,21 +60,19 @@ export default class AddStoryPresenter {
         this.onSuccessCallback();
       }
     
-    } catch (error) {
-      console.error('[ERROR] Submission failed:', error);
+      } catch (error) {
+          let userMessage = error.message;
+          if (error.message.includes('token')) {
+            userMessage = 'Sesi telah berakhir, silakan login kembali';
+          } else if (error.message.includes('network')) {
+            userMessage = 'Gagal terhubung ke server';
+            }
       
-      let userMessage = error.message;
-      if (error.message.includes('token')) {
-        userMessage = 'Sesi telah berakhir, silakan login kembali';
-      } else if (error.message.includes('network')) {
-        userMessage = 'Gagal terhubung ke server';
+          this._view.showError(userMessage);
+
+      } finally {
+        this._view.stopLoading();
       }
-      
-      this._view.showError(userMessage);
-    } finally {
-      this._view.stopLoading();
-      console.log('[DEBUG] Submission process completed');
-    }
   }
 
   setOnSuccessCallback(callback) {

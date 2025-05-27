@@ -60,6 +60,20 @@ export default class AboutPage {
   }
 
   afterRender() {
+    this._cacheDOM();
     console.log('About page rendered');
+  }
+
+  _cacheDOM() {
+    this._addStoryBtn = document.querySelector('.cta-button.primary');
+    this._exploreBtn = document.querySelector('.cta-button.secondary');
+  }
+
+  get addStoryButton() {
+    return this._addStoryBtn;
+  }
+
+  get exploreButton() {
+    return this._exploreBtn;
   }
 }

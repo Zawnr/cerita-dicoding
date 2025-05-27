@@ -1,16 +1,18 @@
 export default class AboutPresenter {
   constructor(view) {
     this._view = view;
+  }
+
+    init() {
     this._setupCTAButtons();
   }
 
   _setupCTAButtons() {
-    const addStoryBtn = document.querySelector('.cta-button.primary');
-    const exploreBtn = document.querySelector('.cta-button.secondary');
+    const addStoryBtn = this._view.addStoryButton;
+    const exploreBtn = this._view.exploreButton;
 
     addStoryBtn?.addEventListener('click', () => {
       console.log('Tombol "Mulai Cerita" diklik');
-      // Tambahkan tracking event atau animasi nanti
     });
 
     exploreBtn?.addEventListener('click', () => {

@@ -19,5 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Stop all active media
     Camera.stopAllStreams();
   });
+
+  document.querySelector('.skip-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelector('#main-content')?.focus();
+  });
 });
 

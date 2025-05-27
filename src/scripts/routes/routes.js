@@ -4,6 +4,7 @@ import RegisterPage from '../pages/auth/register/register-page';
 import AboutPage from '../pages/about/about-page';
 import StoryDetailPage from '../pages/story-detail/story-detail-page';
 import AddStoryPage from '../pages/story/add-story-page';
+import AddStoryPresenter from '../pages/story/add-story-presenter';
 
 
 const routes = {
@@ -12,14 +13,19 @@ const routes = {
     render: async () => {
       const page = routes['/login'].page;
       const html = page.render();
-      await page.afterRender(); // Panggil afterRender
+      await page.afterRender(); 
       return html;
     }
   },
 
   '/register': {
     page: new RegisterPage(),
-    render: () => routes['/register'].page.render()
+    render: async () => {
+      const page = routes['/register'].page;
+      const html = page.render();
+      await page.afterRender(); 
+      return html;
+  }
   },
 
   '/': {
@@ -33,20 +39,22 @@ const routes = {
   },
 
 '/add-story': {
-  page: new AddStoryPage(),
-  render: async () => {
-    const html = await routes['/add-story'].page.render();
-    return html;
-  },
-  afterRender: async () => {
-    console.log('[DEBUG] Start afterRender'); // Pastikan ini muncul
-    try {
-      const presenter = new AddStoryPresenter(routes['/add-story'].page);
-      await presenter.init();
-      console.log('[DEBUG] Presenter ready');
-    } catch (error) {
-      console.error('[ERROR] Presenter init:', error);
-    }
+    page: new AddStoryPage(),
+    render: async () => {
+      const page = routes['/add-story'].page;
+      const html = page.render();
+      page.setPresenter(AddStoryPresenter);
+      return html;
+    },
+    afterRender: async () => {
+      console.log('[DEBUG] Start afterRender'); 
+      try {
+        const presenter = new AddStoryPresenter(routes['/add-story'].page);
+        await presenter.init();
+        console.log('[DEBUG] Presenter ready');
+      } catch (error) {
+        console.error('[ERROR] Presenter init:', error);
+      }
   }
 },
 

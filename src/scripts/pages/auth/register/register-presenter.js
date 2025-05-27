@@ -4,11 +4,7 @@ import { navigateTo } from '../../../routes/url-parser';
 class RegisterPresenter {
   constructor({ view }) {
     this._view = view;
-    this._bindViewEvents();
-  }
-
-  _bindViewEvents() {
-    this._view.setRegisterHandler(this._handleRegister.bind(this));
+    this._handleRegister = this._handleRegister.bind(this); // Binding method
   }
 
   async _handleRegister({ name, email, password }) {
