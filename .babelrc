@@ -1,5 +1,19 @@
 {
-  "presets": ["@babel/preset-env"],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions",
+            "not dead",
+            ">= 0.2%",
+            "not IE 11"
+          ]
+        }
+      }
+    ]
+  ],
   "plugins": [
     "@babel/plugin-syntax-dynamic-import",
     "@babel/plugin-transform-runtime"

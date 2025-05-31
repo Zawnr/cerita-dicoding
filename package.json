@@ -29,12 +29,17 @@
     "webpack-bundle-analyzer": "^4.9.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.0",
-    "webpack-merge": "^6.0.1"
+    "webpack-merge": "^6.0.1",
+    "workbox-webpack-plugin": "^7.3.0"
   },
   "dependencies": {
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "idb": "^8.0.3",
     "leaflet": "^1.9.4",
     "tiny-slider": "^2.9.4",
-    "workbox-webpack-plugin": "^7.3.0"
+    "workbox-cacheable-response": "^7.3.0",
+    "workbox-precaching": "^7.3.0",
+    "workbox-routing": "^7.3.0",
+    "workbox-strategies": "^7.3.0"
   }
 }

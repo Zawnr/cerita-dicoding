@@ -1,2 +1,2 @@
-APP_URL=http://localhost:9000/
+APP_URL=https://relaxed-halva-c81d74.netlify.app/
 MAP_SERVICE_API_KEY=cGtUco0yWux4VGnWTijP

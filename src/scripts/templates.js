@@ -10,15 +10,17 @@ export function generateLoaderTemplate() {
 export function generateNavbarTemplate(isAuthenticated = false) {
   return `
     <ul class="nav-list">
-      <li><a href="#/">Beranda</a></li>
       ${isAuthenticated ? `
         <li><a href="#/add-story">Tambah Cerita</a></li>
+        <li><a id="bookmark-button" class="bookmark-button" href="#/bookmark">Laporan Tersimpan</a></li>
+        <li><a href="#/about">About</a></li>
         <li><a href="#" id="logout-link">Logout</a></li>
+        <li id="push-notification-tools" class="push-notification-tools"></li>
       ` : `
         <li><a href="#/login">Login</a></li>
         <li><a href="#/register">Daftar</a></li>
       `}
-      <li><a href="#/about">About</a></li>
+      
     </ul>
   `;
 }
@@ -26,18 +28,27 @@ export function generateNavbarTemplate(isAuthenticated = false) {
 function generateAuthenticatedNavItems() {
   return `
     <li><a href="#/add-story">Tambah Cerita</a></li>
+    <li id="push-notification-tools" class="push-notification-tools"></li>
     <li><a href="#" id="logout-link">Logout</a></li>
   `;
 }
 
 function generateUnauthenticatedNavItems() {
   return `
+    <li id="push-notification-tools" class="push-notification-tools"></li>
     <li><a href="#/login">Login</a></li>
     <li><a href="#/register">Daftar</a></li>
   `;
 }
 
-
+export function generateReportsListEmptyTemplate() {
+  return `
+    <div id="reports-list-empty" class="reports-list__empty">
+      <h2>Tidak ada laporan yang tersedia</h2>
+      <p>Saat ini, tidak ada laporan kerusakan fasilitas umum yang dapat ditampilkan.</p>
+    </div>
+  `;
+}
 
 export function generateLoaderAbsoluteTemplate() {
   return `
@@ -54,33 +65,6 @@ export function generateStoriesListEmptyTemplate() {
     </div>
   `;
 }
-
-// batas area
-
-export function generateMainNavigationListTemplate() {
-  return `
-    <li><a id="report-list-button" class="report-list-button" href="#/">Daftar Laporan</a></li>
-    <li><a id="bookmark-button" class="bookmark-button" href="#/bookmark">Laporan Tersimpan</a></li>
-  `;
-}
-
-export function generateUnauthenticatedNavigationListTemplate() {
-    return `
-      <li id="push-notification-tools" class="push-notification-tools"></li>
-      <li><a id="login-button" href="#/login">Login</a></li>
-      <li><a id="register-button" href="#/register">Register</a></li>
-    `;
-}
-
-
-export function generateAuthenticatedNavigationListTemplate() {
-  return `
-    <li id="push-notification-tools" class="push-notification-tools"></li>
-    <li><a id="new-report-button" class="btn new-report-button" href="#/new">Mari Bercerita <i class="fas fa-plus"></i></a></li>
-    <li><a id="logout-button" class="logout-button" href="#/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-  `;
-}
-
 
 export function generateStoriesListErrorTemplate(message) {
   return `
@@ -100,40 +84,43 @@ export function generateStoriesDetailErrorTemplate(message) {
   `;
 }
 
-//ini kebawah belum dicheck
+
 export function generateReportItemTemplate({
   id,
-  title,
+  name,         
   description,
-  evidenceImages,
-  reporterName,
+  photoUrl,      
+  reporter,      
   createdAt,
-  location,
+  location,      
 }) {
+
+  const storyTitle = name || 'Judul Tidak Tersedia';
+  const storyDescription = description || 'Deskripsi tidak tersedia.';
+  const storyPhotoUrl = photoUrl || 'placeholder.jpg'; 
+  const storyReporterName = reporter?.name || 'Anonim';
+  const storyLocationName = location?.placeName || 'Lokasi tidak diketahui'; 
+
   return `
     <div tabindex="0" class="report-item" data-reportid="${id}">
-      <img class="report-item__image" src="${evidenceImages[0]}" alt="${title}">
+      <img class="report-item__image" src="${storyPhotoUrl}" alt="${storyTitle}">
       <div class="report-item__body">
         <div class="report-item__main">
-          <h2 id="report-title" class="report-item__title">${title}</h2>
+          <h2 id="report-title" class="report-item__title">${storyTitle}</h2>
           <div class="report-item__more-info">
             <div class="report-item__createdat">
               <i class="fas fa-calendar-alt"></i> ${showFormattedDate(createdAt, 'id-ID')}
             </div>
             <div class="report-item__location">
-              <i class="fas fa-map"></i> ${location.placeName}
+              <i class="fas fa-map"></i> ${storyLocationName}
             </div>
           </div>
         </div>
         <div id="report-description" class="report-item__description">
-          ${description}
+          ${storyDescription}
         </div>
-        <div class="report-item__more-info">
-          <div class="report-item__author">
-            Dilaporkan oleh: ${reporterName}
-          </div>
-        </div>
-        <a class="btn report-item__read-more" href="#/reports/${id}">
+
+        <a class="btn report-item__read-more" href="#/stories/${id}">
           Selengkapnya <i class="fas fa-arrow-right"></i>
         </a>
       </div>
@@ -304,7 +291,7 @@ export function generateUnsubscribeButtonTemplate() {
 export function generateSaveReportButtonTemplate() {
   return `
     <button id="report-detail-save" class="btn btn-transparent">
-      Simpan laporan <i class="far fa-bookmark"></i>
+      Simpan Cerita <i class="far fa-bookmark"></i>
     </button>
   `;
 }
@@ -312,7 +299,25 @@ export function generateSaveReportButtonTemplate() {
 export function generateRemoveReportButtonTemplate() {
   return `
     <button id="report-detail-remove" class="btn btn-transparent">
-      Buang laporan <i class="fas fa-bookmark"></i>
+      Buang Cerita <i class="fas fa-bookmark"></i>
     </button>
+  `;
+}
+
+export function generateReportDetailErrorTemplate(message) {
+  return `
+    <div id="reports-detail-error" class="reports-detail__error">
+      <h2>Terjadi kesalahan pengambilan detail Cerita</h2>
+      <p>${message ? message : 'Gunakan jaringan lain atau laporkan error ini.'}</p>
+    </div>
+  `;
+}
+
+export function generateReportsListErrorTemplate(message) {
+  return `
+    <div id="reports-list-error" class="reports-list__error">
+      <h2>Terjadi kesalahan pengambilan Kumpulan Cerita</h2>
+      <p>${message ? message : 'Gunakan jaringan lain atau laporkan error ini.'}</p>
+    </div>
   `;
 }

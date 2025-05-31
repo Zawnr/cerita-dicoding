@@ -1,0 +1,115 @@
+{
+  "id": "/#/",
+  "start_url": "/#/",
+  "scope": "/",
+  "name": "Cerita Dicoding App",
+  "short_name": "CeritaDicoding",
+  "description": "Cerita Dicoding adalah platform berbagi cerita berbasis web, mirip kayak post di media sosial—tapi khusus untuk kamu yang semangat belajar dan berkembang di dunia teknologi. Di sini, kamu bisa upload foto, kasih deskripsi, bahkan tambahin lokasi kalau mau. Nggak perlu jadi expert kok, semua orang bisa cerita!",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#d97706",
+  "icons": [
+    {
+      "src": "images/icons/dicoding.png",
+      "type": "image/png",
+      "sizes": "144x144",
+      "purpose": "any"
+    },
+    {
+      "src": "images/icons/dicoding.png",
+      "type": "image/png",
+      "sizes": "48x48",
+      "purpose": "maskable"
+    },
+    {
+      "src": "images/icons/dicoding.png",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "maskable"
+    },
+    {
+      "src": "images/icons/dicoding.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "images/icons/dicoding.png",
+      "type": "image/png",
+      "sizes": "384x384",
+      "purpose": "maskable"
+    },
+    {
+      "src": "images/icons/dicoding.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/screenshots/CeritaDicoding_001.png",
+      "sizes": "1920x1043",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "images/screenshots/CeritaDicoding_002.png",
+      "sizes": "1920x1043",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "images/screenshots/CeritaDicoding_003.png",
+      "sizes": "1920x1043",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "images/screenshots/CeritaDicoding_004.png",
+      "sizes": "401x871",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "images/screenshots/CeritaDicoding_005.png",
+      "sizes": "401x871",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "images/screenshots/CeritaDicoding_006.png",
+      "sizes": "401x871",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mari Bercerita",
+      "short_name": "Baru",
+      "description": "Bercerita, Berbagi dan Bersama",
+      "url": "/?source=pwa#/add-story",
+      "icons": [
+        {
+          "src": "images/icons/dicoding.png",
+          "type": "image/png",
+          "sizes": "512x512"
+        }
+      ]
+    },
+    {
+      "name": "Beranda",
+      "short_name": "Tersimpan",
+      "description": "Lihat berbagai Cerita tersimpan.",
+      "url": "/?source=pwa#/",
+      "icons": [
+        {
+          "src": "images/icons/dicoding.png",
+          "type": "image/png",
+          "sizes": "512x512"
+        }
+      ]
+    }
+  ]
+}

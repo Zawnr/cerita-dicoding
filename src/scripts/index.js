@@ -6,14 +6,21 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 window.L = L; 
 import Camera from './utils/camera';
+import { registerServiceWorker } from './utils';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  
   const app = new App({
     navigationDrawer: document.querySelector('#navigation-drawer'),
     drawerButton: document.querySelector('#drawer-button'),
     content: document.querySelector('#main-content'),
     skipLinkButton: document.getElementById('skip-link'),
   });
+
+  await registerServiceWorker();
+
+  // for demonstration purpose-only
+  console.log('Berhasil mendaftarkan service worker.');
 
   window.addEventListener('hashchange', async () => {
     // Stop all active media

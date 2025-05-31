@@ -1,7 +1,20 @@
 import routes from '../routes/routes';
-import { getActiveRoute, navigateTo } from '../routes/url-parser';
+import { 
+  getActiveRoute, 
+  navigateTo 
+} from '../routes/url-parser';
 import { updateNavbar } from '../utils/navbar-handler';
 import { checkAuthAccess } from '../utils/auth';
+import { 
+  generateSubscribeButtonTemplate, 
+  generateUnsubscribeButtonTemplate 
+} from '../templates';
+import { isServiceWorkerAvailable, } from '../utils';
+import { 
+  isCurrentPushSubscriptionAvailable, 
+  subscribe, 
+  unsubscribe 
+} from '../utils/notification-helper';
 
 class App {
   constructor({ navigationDrawer, drawerButton, content }) {
@@ -70,11 +83,44 @@ class App {
     }
   }
 
+  async #setupPushNotification() {
+    const pushNotificationTools = document.getElementById('push-notification-tools');
+    if (!pushNotificationTools) {
+      console.warn('Elemen #push-notification-tools tidak ditemukan di DOM.');
+      return;
+    }
+
+    const isSubscribed = await isCurrentPushSubscriptionAvailable();
+
+    if (isSubscribed) {
+      pushNotificationTools.innerHTML = generateUnsubscribeButtonTemplate();
+      document.getElementById('unsubscribe-button')?.addEventListener('click', async () => {
+        const success = await unsubscribe();
+        if (success) { 
+          this.#setupPushNotification(); 
+        }
+      });
+    } else {
+      pushNotificationTools.innerHTML = generateSubscribeButtonTemplate();
+
+      document.getElementById('subscribe-button')?.addEventListener('click', async () => {
+        const success = await subscribe();
+        if (success) { 
+          this.#setupPushNotification();
+        }
+      });
+    }
+  }
+
   async _renderPage() {
     const path = this._getActiveRoute();
     
     if (!document.startViewTransition) {
-      return this._renderContent(path);
+      await this._renderContent(path);
+      if (isServiceWorkerAvailable()) {
+        await this.#setupPushNotification();
+      }
+      return;
     }
 
     try {
@@ -85,6 +131,10 @@ class App {
       console.error('View transition failed:', err);
 
       await this._renderContent(path);
+    }
+
+    if (isServiceWorkerAvailable()) {
+      this.#setupPushNotification();
     }
   }
 

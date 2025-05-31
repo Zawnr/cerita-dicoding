@@ -1,6 +1,5 @@
 import Camera from '../../utils/camera';
 import Map from '../../utils/maps';
-import AddStoryPresenter from './add-story-presenter';
 
 export default class AddStoryPage {
   constructor() {
@@ -78,6 +77,7 @@ export default class AddStoryPage {
             <span id="submitText">Simpan Cerita</span>
             <span id="spinner" class="spinner d-none"></span>
           </button>
+          <div id="notification"></div>
         </form>
       </section>
     `;

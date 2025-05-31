@@ -1,7 +1,14 @@
-import StoryDetailPresenter from "./story-detail-presenter";
 import Map  from '../../utils/maps';
+import * as CeritaAPI from '../../data/api'; 
+import Database from '../../data/database'; 
+import {
+  generateSaveReportButtonTemplate, // Pastikan ini ada di templates.js
+  generateRemoveReportButtonTemplate // Pastikan ini ada di templates.js
+} from '../../templates';
 
 export default class StoryDetailPage {
+    #presenter = null;
+    
     constructor() {
       this._mainElement = document.querySelector('#main-content');
       this._loadingElement = null;
@@ -26,7 +33,16 @@ export default class StoryDetailPage {
           </div>
           <div id="loading">Memuat detail cerita...</div>
           <div id="error" style="color:red;display:none;"></div>
-          <a href="#/" class="back-button">Kembali ke Beranda</a>
+
+          <div class="story-actions-wrapper">
+            <div id="save-actions-container" class="mt-4"></div>
+            <a href="#/" class="back-button btn btn-outline">Kembali ke Cerita</a>
+          </div>
+
+          <div class="report-detail__container">
+            <div id="report-detail" class="report-detail"></div>
+            <div id="report-detail-loading-container"></div>
+          </div>
         </div>
       `;
     }
@@ -36,8 +52,14 @@ export default class StoryDetailPage {
     this._errorElement = document.getElementById('error');
     
     const { default: StoryDetailPresenter } = await import('./story-detail-presenter');
-    this._presenter = new StoryDetailPresenter(this);
-    await this._presenter.loadStory(params.id);
+    this.#presenter = new StoryDetailPresenter(params.id, { 
+      view: this,
+      apiModel: CeritaAPI, 
+      dbModel: Database, 
+    });
+    
+    await this.#presenter.loadStory(); 
+    await this.#presenter.showSaveButton();
   }
 
   showLoading() {
@@ -58,6 +80,13 @@ export default class StoryDetailPage {
       this._errorElement.textContent = message;
     }
   }
+
+  hideError() { 
+      if (this._errorElement) {
+        this._errorElement.style.display = 'none';
+        this._errorElement.textContent = ''; 
+      }
+    }
 
   async showStoryDetail(story) {
   if (!story) {
@@ -133,5 +162,55 @@ export default class StoryDetailPage {
     } catch (error) {
       console.error('Error initializing map:', error);
     }
+  }
+
+  renderSaveButton() {
+    const saveActionsContainer = document.getElementById('save-actions-container');
+    if (saveActionsContainer) {
+      saveActionsContainer.innerHTML = generateSaveReportButtonTemplate();
+      document.getElementById('report-detail-save')?.addEventListener('click', async () => {
+        await this.#presenter.saveStory(); 
+        await this.#presenter.showSaveButton();
+      });
+    } else {
+      console.warn('Elemen #save-actions-container tidak ditemukan.');
+    }
+  }
+
+
+  renderRemoveButton() {
+    const saveActionsContainer = document.getElementById('save-actions-container');
+    if (saveActionsContainer) {
+      saveActionsContainer.innerHTML = generateRemoveReportButtonTemplate();
+      document.getElementById('report-detail-remove')?.addEventListener('click', async () => {
+        await this.#presenter.removeStory(); 
+        await this.#presenter.showSaveButton(); 
+      });
+    } else {
+      console.warn('Elemen #save-actions-container tidak ditemukan.');
+    }
+  }
+
+
+  saveToBookmarkSuccessfully(message) {
+    console.log(message);
+    alert(message); 
+  }
+
+
+  saveToBookmarkFailed(message) {
+    console.error(message);
+    alert(message);
+  }
+
+  removeFromBookmarkSuccessfully(message) {
+    console.log(message);
+    alert(message); 
+  }
+
+
+  removeFromBookmarkFailed(message) {
+    console.error(message);
+    alert(message);
   }
 }

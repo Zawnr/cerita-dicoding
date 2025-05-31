@@ -5,6 +5,7 @@ import AboutPage from '../pages/about/about-page';
 import StoryDetailPage from '../pages/story-detail/story-detail-page';
 import AddStoryPage from '../pages/story/add-story-page';
 import AddStoryPresenter from '../pages/story/add-story-presenter';
+import BookmarkPage from '../pages/bookmark/bookmark-page';
 
 
 const routes = {
@@ -25,7 +26,7 @@ const routes = {
       const html = page.render();
       await page.afterRender(); 
       return html;
-  }
+    }
   },
 
   '/': {
@@ -38,7 +39,7 @@ const routes = {
     render: () => routes['/about'].page.render()
   },
 
-'/add-story': {
+  '/add-story': {
     page: new AddStoryPage(),
     render: async () => {
       const page = routes['/add-story'].page;
@@ -55,14 +56,26 @@ const routes = {
       } catch (error) {
         console.error('[ERROR] Presenter init:', error);
       }
-  }
-},
+    }
+  },
 
   '/stories/:id': {
     page: new StoryDetailPage(),
     render: (params) => routes['/stories/:id'].page.render(params)
-    }
-  };
+  },
+
+  '/bookmark': { 
+    page: new BookmarkPage(),
+    render: async (params) => {
+      const pageInstance = new BookmarkPage(); 
+      return await pageInstance.render(params);
+    },
+    afterRender: async (params) => {
+      const pageInstance = new BookmarkPage(); 
+      await pageInstance.afterRender(params);
+    },
+  },
+};
 
 
 export default routes;

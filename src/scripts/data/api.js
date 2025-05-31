@@ -10,6 +10,10 @@ const ENDPOINTS = {
   STORY_LIST: `${CONFIG.BASE_URL}/stories`,
   ADD_NEW_STORY: `${CONFIG.BASE_URL}/stories`,
   STORY_DETAIL: (id) => `${CONFIG.BASE_URL}/stories/${id}`,
+
+  // Push Notification
+  SUBSCRIBE: `${CONFIG.BASE_URL}/notifications/subscribe`,
+  UNSUBSCRIBE: `${CONFIG.BASE_URL}/notifications/subscribe`,
 };
 
 export async function getRegistered({ name, email, password }) {
@@ -152,6 +156,99 @@ export async function getStoryById(id, token) {
       ok: false,
       message: error.message,
       story: null
+    };
+  }
+}
+
+export async function subscribePushNotification({ endpoint, keys: { p256dh, auth } }) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error('Access token not found. Please log in first.');
+  }
+
+  const data = JSON.stringify({
+    endpoint,
+    keys: { p256dh, auth },
+  });
+
+  try {
+    const fetchResponse = await fetch(ENDPOINTS.SUBSCRIBE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: data,
+    });
+    
+    // Pastikan respons adalah JSON atau tangani jika tidak
+    let json = {};
+    try {
+      json = await fetchResponse.json();
+    } catch (e) {
+      console.warn('Response is not JSON or empty:', fetchResponse.status, e);
+      if (fetchResponse.ok) {
+        json = { message: 'Success (no JSON response)', error: false };
+      } else {
+        json = { message: `Server error: ${fetchResponse.statusText}`, error: true };
+      }
+    }
+
+    return {
+      ...json,
+      ok: fetchResponse.ok,
+    };
+  } catch (error) {
+    console.error('subscribePushNotification network error:', error);
+    return {
+      ok: false,
+      message: 'Network error: Failed to connect to push notification server.',
+      error: true,
+    };
+  }
+}
+
+export async function unsubscribePushNotification({ endpoint }) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error('Access token not found. Please log in first.');
+  }
+
+  const data = JSON.stringify({ endpoint });
+
+  try {
+    const fetchResponse = await fetch(ENDPOINTS.UNSUBSCRIBE, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: data,
+    });
+
+
+    let json = {};
+    try {
+      json = await fetchResponse.json();
+    } catch (e) {
+      console.warn('Response is not JSON or empty:', fetchResponse.status, e);
+      if (fetchResponse.ok) {
+        json = { message: 'Success (no JSON response)', error: false };
+      } else {
+        json = { message: `Server error: ${fetchResponse.statusText}`, error: true };
+      }
+    }
+
+    return {
+      ...json,
+      ok: fetchResponse.ok,
+    };
+  } catch (error) {
+    console.error('unsubscribePushNotification network error:', error);
+    return {
+      ok: false,
+      message: 'Network error: Failed to connect to push notification server.',
+      error: true,
     };
   }
 }
